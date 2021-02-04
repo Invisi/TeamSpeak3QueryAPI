@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TeamSpeak3QueryApi.Net.Specialized.Notifications;
-using TeamSpeak3QueryApi.Net.Specialized.Responses;
+using TeamSpeak3QueryApi.Net.Specialized.Notifications.Server;
+using TeamSpeak3QueryApi.Net.Specialized.Responses.Server;
 
 namespace TeamSpeak3QueryApi.Net.Specialized
 {
@@ -16,7 +16,7 @@ namespace TeamSpeak3QueryApi.Net.Specialized
         public QueryClient Client { get; }
 
         // TODO: Migrate to ValueTuples
-        private readonly List<Tuple<NotificationType, object, Action<NotificationData>>> _callbacks = new List<Tuple<NotificationType, object, Action<NotificationData>>>();
+        private readonly List<Tuple<ServerNotificationType, object, Action<NotificationData>>> _callbacks = new List<Tuple<ServerNotificationType, object, Action<NotificationData>>>();
 
         private readonly FileTransferClient _fileTransferClient;
 
@@ -75,9 +75,9 @@ namespace TeamSpeak3QueryApi.Net.Specialized
                 Client.Unsubscribe(notification.ToString(), cbt.Item3);
         }
 
-        private static NotificationType GetNotificationType<T>()
+        private static ServerNotificationType GetNotificationType<T>()
         {
-            if (!Enum.TryParse(typeof(T).Name, out NotificationType notification)) // This may violate the generic pattern. May change this later.
+            if (!Enum.TryParse(typeof(T).Name, out ServerNotificationType notification)) // This may violate the generic pattern. May change this later.
                 throw new ArgumentException("The specified generic parameter is not a supported NotificationType."); // For this time, we only support class-internal types which are listed in NotificationType
             return notification;
         }
@@ -106,15 +106,15 @@ namespace TeamSpeak3QueryApi.Net.Specialized
 
         #region Notification Methods
 
-        public Task RegisterChannelNotification(int channelId) => RegisterNotification(NotificationEventTarget.Channel, channelId);
-        public Task RegisterServerNotification() => RegisterNotification(NotificationEventTarget.Server, -1);
-        public Task RegisterTextServerNotification() => RegisterNotification(NotificationEventTarget.TextServer, -1);
-        public Task RegisterTextChannelNotification() => RegisterNotification(NotificationEventTarget.TextChannel, -1);
-        public Task RegisterTextPrivateNotification() => RegisterNotification(NotificationEventTarget.TextPrivate, -1);
-        private Task RegisterNotification(NotificationEventTarget target, int channelId)
+        public Task RegisterChannelNotification(int channelId) => RegisterNotification(ServerNotificationEventTarget.Channel, channelId);
+        public Task RegisterServerNotification() => RegisterNotification(ServerNotificationEventTarget.Server, -1);
+        public Task RegisterTextServerNotification() => RegisterNotification(ServerNotificationEventTarget.TextServer, -1);
+        public Task RegisterTextChannelNotification() => RegisterNotification(ServerNotificationEventTarget.TextChannel, -1);
+        public Task RegisterTextPrivateNotification() => RegisterNotification(ServerNotificationEventTarget.TextPrivate, -1);
+        private Task RegisterNotification(ServerNotificationEventTarget target, int channelId)
         {
             var ev = new Parameter("event", target.ToString().ToLowerInvariant());
-            if (target == NotificationEventTarget.Channel)
+            if (target == ServerNotificationEventTarget.Channel)
                 return Client.Send("servernotifyregister", ev, new Parameter("id", channelId));
             return Client.Send("servernotifyregister", ev);
         }

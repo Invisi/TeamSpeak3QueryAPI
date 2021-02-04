@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TeamSpeak3QueryApi.Net.Specialized;
-using TeamSpeak3QueryApi.Net.Specialized.Notifications;
+using TeamSpeak3QueryApi.Net.Specialized.Notifications.Server;
 
 namespace TeamSpeak3QueryApi.Net.Demo
 {
