@@ -3,13 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
-using TeamSpeak3QueryApi.Net.Specialized;
-using TeamSpeak3QueryApi.Net.Specialized.ClientEnum;
-using TeamSpeak3QueryApi.Net.Specialized.Notifications.Client;
-using TeamSpeak3QueryApi.Net.Specialized.Responses.Client;
-using ServerVariable = TeamSpeak3QueryApi.Net.Specialized.ClientEnum.ServerVariable;
+using TeamSpeak3QueryApi.Net.ClientQuery;
+using TeamSpeak3QueryApi.Net.ClientQuery.Enum;
+using TeamSpeak3QueryApi.Net.ClientQuery.Notifications;
 
 namespace TeamSpeak3QueryApi.ClientDemo
 {
@@ -31,7 +27,7 @@ namespace TeamSpeak3QueryApi.ClientDemo
 
             var token = loginData[0].Trim();
 
-            var rc = new TeamSpeakClientQuery();
+            var rc = new TeamSpeakClient();
             await rc.Connect();
             await rc.Auth(token);
 
