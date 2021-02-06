@@ -37,6 +37,7 @@ _UpgradeReport_Files/
 # Directories #
 ###############
 
+.idea/
 bin/
 obj/
 TestResults/

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TeamSpeak3QueryApi.Net.Specialized.Notifications;
 using TeamSpeak3QueryApi.Net.Specialized.Notifications.Server;
 using TeamSpeak3QueryApi.Net.Specialized.Responses.Server;
 

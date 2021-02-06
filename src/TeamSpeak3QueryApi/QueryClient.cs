@@ -23,7 +23,7 @@ namespace TeamSpeak3QueryApi.Net
         /// <returns>The remote port of the Query API client.</returns>
         public int Port { get; }
 
-        public bool IsConnected { get; private set; }
+        public bool IsConnected { get; private protected set; }
 
         /// <summary>The default host which is used when no host is provided.</summary>
         public const string DefaultHost = "localhost";
@@ -32,9 +32,9 @@ namespace TeamSpeak3QueryApi.Net
         public const short DefaultPort = 10011;
 
         public TcpClient Client { get; }
-        private StreamReader _reader;
-        private StreamWriter _writer;
-        private NetworkStream _ns;
+        private protected StreamReader Reader;
+        private protected StreamWriter Writer;
+        private protected NetworkStream Ns;
         private CancellationTokenSource _cts;
         private readonly Queue<QueryCommand> _queue = new Queue<QueryCommand>();
         private readonly ConcurrentDictionary<string, List<Action<NotificationData>>> _subscriptions = new ConcurrentDictionary<string, List<Action<NotificationData>>>();
@@ -77,15 +77,15 @@ namespace TeamSpeak3QueryApi.Net
             if (!Client.Connected)
                 throw new InvalidOperationException("Could not connect.");
 
-            _ns = Client.GetStream();
-            _reader = new StreamReader(_ns);
-            _writer = new StreamWriter(_ns) { NewLine = "\n" };
+            Ns = Client.GetStream();
+            Reader = new StreamReader(Ns);
+            Writer = new StreamWriter(Ns) { NewLine = "\n" };
 
             IsConnected = true;
 
-            await _reader.ReadLineAsync().ConfigureAwait(false);
-            await _reader.ReadLineAsync().ConfigureAwait(false); // Ignore welcome message
-            await _reader.ReadLineAsync().ConfigureAwait(false);
+            await Reader.ReadLineAsync().ConfigureAwait(false);
+            await Reader.ReadLineAsync().ConfigureAwait(false); // Ignore welcome message
+            await Reader.ReadLineAsync().ConfigureAwait(false);
 
             return ResponseProcessingLoop();
         }
@@ -340,7 +340,7 @@ namespace TeamSpeak3QueryApi.Net
             }
         }
 
-        private CancellationTokenSource ResponseProcessingLoop()
+        private protected CancellationTokenSource ResponseProcessingLoop()
         {
             var cts = _cts = new CancellationTokenSource();
             Task.Run(async () =>
@@ -350,7 +350,7 @@ namespace TeamSpeak3QueryApi.Net
                     string line = null;
                     try
                     {
-                        line = await _reader.ReadLineAsync().WithCancellation(cts.Token).ConfigureAwait(false);
+                        line = await Reader.ReadLineAsync().WithCancellation(cts.Token).ConfigureAwait(false);
                     }
                     catch (OperationCanceledException)
                     {
@@ -403,8 +403,8 @@ namespace TeamSpeak3QueryApi.Net
             {
                 _currentCommand = _queue.Dequeue();
                 Debug.WriteLine(_currentCommand.SentText);
-                await _writer.WriteLineAsync(_currentCommand.SentText).ConfigureAwait(false);
-                await _writer.FlushAsync().ConfigureAwait(false);
+                await Writer.WriteLineAsync(_currentCommand.SentText).ConfigureAwait(false);
+                await Writer.FlushAsync().ConfigureAwait(false);
             }
         }
 
@@ -433,9 +433,9 @@ namespace TeamSpeak3QueryApi.Net
                 _cts?.Cancel();
                 _cts?.Dispose();
                 Client?.Dispose();
-                _ns?.Dispose();
-                _reader?.Dispose();
-                _writer?.Dispose();
+                Ns?.Dispose();
+                Reader?.Dispose();
+                Writer?.Dispose();
             }
         }
 
